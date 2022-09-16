@@ -1,4 +1,4 @@
-import { dbService } from "fbase";
+import { dbService, storageService } from "fbase";
 import React, { useState } from "react";
 
 const Ntweet = ({ ntweetObj, isOwner }) => {
@@ -9,8 +9,10 @@ const Ntweet = ({ ntweetObj, isOwner }) => {
     const ok = window.confirm("Are you sure you want to delete this ntweet?");
     if (ok) {
       await dbService.doc(`ntweets/${ntweetObj.id}`).delete();
+      await storageService.refFromURL(ntweetObj.imgUrl).delete();
     }
   };
+
   const toggleEditing = () => setEditing((prev) => !prev);
   const onSubmit = async (event) => {
     event.preventDefault();
@@ -19,12 +21,14 @@ const Ntweet = ({ ntweetObj, isOwner }) => {
     });
     setEditing(false);
   };
+
   const onChange = (event) => {
     const {
       target: { value },
     } = event;
     setNewNtweet(value);
   };
+
   return (
     <div>
       {editing ? (
@@ -44,6 +48,9 @@ const Ntweet = ({ ntweetObj, isOwner }) => {
       ) : (
         <>
           <h4>{ntweetObj.text}</h4>
+          {ntweetObj.imgUrl && (
+            <img src={ntweetObj.imgUrl} width="50px" height="50px" />
+          )}
           {isOwner && (
             <>
               <button onClick={onDeleteClick}>Delete Ntweet</button>

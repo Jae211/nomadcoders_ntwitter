@@ -2,6 +2,7 @@ import { dbService } from "fbase";
 import { React, useEffect, useState } from "react";
 import Ntweet from "components/Ntweet";
 import { v4 as uuidv4 } from "uuid";
+import { storageService } from "fbase";
 
 const Home = ({ userObj }) => {
   const [ntweet, setNtweet] = useState("");
@@ -31,15 +32,22 @@ const Home = ({ userObj }) => {
 
   const onSubmit = async (event) => {
     event.preventDefault();
-    const imgRef = storageService.ref().child(`${userObj.uid}/${uuidv4()}`);
-    const response = await imgRef.putString(image, "data_url");
+    let imgUrl = "";
+    if (image !== "") {
+      const imgRef = storageService.ref().child(`${userObj.uid}/${uuidv4()}`);
+      const response = await imgRef.putString(image, "data_url");
+      imgUrl = await response.ref.getDownloadURL();
+    }
 
-    // await dbService.collection("ntweets").add({
-    //   text: ntweet,
-    //   createdAt: Date.now(),
-    //   creatorId: userObj.uid,
-    // });
-    // setNtweet("");
+    const newNtweet = {
+      text: ntweet,
+      createdAt: Date.now(),
+      creatorId: userObj.uid,
+      imgUrl,
+    };
+    await dbService.collection("ntweets").add(newNtweet);
+    setNtweet("");
+    setImage("");
   };
 
   const onChange = (event) => {
