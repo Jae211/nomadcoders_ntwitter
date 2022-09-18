@@ -7,7 +7,7 @@ import { storageService } from "fbase";
 const Home = ({ userObj }) => {
   const [ntweet, setNtweet] = useState("");
   const [ntweets, setNtweets] = useState([]);
-  const [image, setImage] = useState();
+  const [image, setImage] = useState("");
 
   const getNtweets = async () => {
     const dbNtweets = await dbService.collection("ntweets").get();
